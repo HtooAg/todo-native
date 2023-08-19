@@ -1,55 +1,16 @@
-import {
-  StyleSheet,
-  SafeAreaView,
-  Text,
-  View,
-  TextInput,
-  Button,
-  TouchableOpacity,
-} from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { View, TouchableOpacity } from "react-native";
+import { Header, Text, Input, ListItem } from "@rneui/themed";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useState, useRef } from "react";
-
-const styles = StyleSheet.create({
-  container: {
-    // width: 360,
-  },
-  header: {
-    backgroundColor: "#2196F3",
-    padding: 20,
-    // paddingTop: 40,
-    alignItems: "center",
-  },
-  title: {
-    fontSize: 21,
-    fontWeight: "bold",
-    color: "#fff",
-  },
-  form: {
-    backgroundColor: "#9bcff7",
-    padding: 20,
-    flexDirection: "row",
-  },
-  input: {
-    flexGrow: 1,
-    fontSize: 18,
-  },
-  ListItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    padding: 10,
-    borderWidth: 1,
-    marginBottom: 5,
-    borderColor: "#ddd",
-    borderRadius: 4,
-  },
-});
 
 export default function App() {
   const [tasks, setTasks] = useState([
     { _id: 1, subject: "Apple", done: false },
     { _id: 2, subject: "Orange", done: false },
     { _id: 3, subject: "Milk", done: true },
-    { _id: 4, subject: "Bread", done: false },
+    { _id: 4, subject: "Bread", done: true },
   ]);
 
   const [text, setText] = useState("");
@@ -69,37 +30,100 @@ export default function App() {
     inputRef.current.focus();
   };
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Todo</Text>
-      </View>
-      <View style={styles.form}>
-        <TextInput
-          style={styles.input}
-          ref={inputRef}
-          placeholder="+ New Task"
-          placeholderTextColor="#888"
-          onChangeText={setText}
-          value={text}
-          onSubmitEditing={() => addTask()}
+    <SafeAreaProvider>
+      <View>
+        <Header
+          leftComponent={<Ionicons name="menu" size={24} />}
+          centerComponent={
+            <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+              Todo Native
+            </Text>
+          }
+          rightComponent={
+            <TouchableOpacity
+              onPress={() =>
+                setTasks(tasks.filter(task => (task.done = !task.done)))
+              }>
+              <Ionicons name="checkmark-done" size={24} />
+            </TouchableOpacity>
+          }
         />
-        <Button title="ADD" onPress={() => addTask()} />
       </View>
       <View style={{ padding: 20 }}>
-        {tasks.map(item => {
-          return (
-            <View style={styles.ListItem} key={item._id}>
-              <Text style={{ fontSize: 18 }}>{item.subject}</Text>
-              <TouchableOpacity
-                onPress={() => {
-                  setTasks(tasks.filter(task => task._id !== item._id));
-                }}>
-                <Text style={{ color: "brown" }}>Del</Text>
-              </TouchableOpacity>
-            </View>
-          );
-        })}
+        <Input
+          placeholder="New Task"
+          value={text}
+          onChangeText={setText}
+          ref={inputRef}
+          onSubmitEditing={() => addTask()}
+          rightIcon={
+            <TouchableOpacity onPress={() => addTask()}>
+              <Ionicons name="add" size={24} />
+            </TouchableOpacity>
+          }
+        />
       </View>
-    </SafeAreaView>
+      <View style={{ padding: 20 }}>
+        {tasks
+          .filter(item => !item.done)
+          .map(item => {
+            return (
+              <ListItem key={item._id}>
+                <TouchableOpacity
+                  onPress={() => {
+                    setTasks(
+                      tasks.map(task => {
+                        if (task._id === item._id) task.done = !task.done;
+                        return task;
+                      })
+                    );
+                  }}>
+                  <Ionicons name="square-outline" size={24} />
+                </TouchableOpacity>
+                <ListItem.Content>
+                  <ListItem.Title>{item.subject}</ListItem.Title>
+                </ListItem.Content>
+                <TouchableOpacity
+                  onPress={() => {
+                    setTasks(tasks.filter(task => task._id !== item._id));
+                  }}>
+                  <Ionicons name="trash" size={24} />
+                </TouchableOpacity>
+              </ListItem>
+            );
+          })}
+      </View>
+      <View style={{ padding: 20 }}>
+        {tasks
+          .filter(item => item.done)
+          .map(item => {
+            return (
+              <ListItem key={item._id}>
+                <TouchableOpacity
+                  onPress={() => {
+                    setTasks(
+                      tasks.map(task => {
+                        if (task._id === item._id) task.done = !task.done;
+                        return task;
+                      })
+                    );
+                  }}>
+                  <Ionicons name="checkmark" color="green" size={24} />
+                </TouchableOpacity>
+                <ListItem.Content>
+                  <ListItem.Title>{item.subject}</ListItem.Title>
+                </ListItem.Content>
+                <TouchableOpacity
+                  onPress={() => {
+                    setTasks(tasks.filter(task => task._id !== item._id));
+                  }}>
+                  <Ionicons name="trash" size={24} />
+                </TouchableOpacity>
+              </ListItem>
+            );
+          })}
+      </View>
+      <StatusBar style="auto" />
+    </SafeAreaProvider>
   );
 }
