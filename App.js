@@ -3,16 +3,18 @@ import { View, TouchableOpacity } from "react-native";
 import { Header, Text, Input, ListItem } from "@rneui/themed";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
+const url = "http://192.168.100.26:8888/tasks";
 export default function App() {
-  const [tasks, setTasks] = useState([
-    { _id: 1, subject: "Apple", done: false },
-    { _id: 2, subject: "Orange", done: false },
-    { _id: 3, subject: "Milk", done: true },
-    { _id: 4, subject: "Bread", done: true },
-  ]);
-
+  const [tasks, setTasks] = useState([]);
+  useEffect(() => {
+    (async () => {
+      const res = await fetch(url);
+      const data = await res.json();
+      setTasks(data);
+    })();
+  }, []);
   const [text, setText] = useState("");
   const inputRef = useRef();
 
